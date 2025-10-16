@@ -42,7 +42,6 @@
   </div>
 
   <script>
-    const MAPTILER_KEY = "{{ env('MAPTILER_KEY') }}";
 
     // ==============================
     // Khởi tạo bản đồ

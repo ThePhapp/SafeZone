@@ -56,4 +56,19 @@ class AddressController extends Controller
         return redirect()->route('addresses.index')->with('success', 'Address created successfully.');
     }
 
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        $address = Address::where('id', $id)
+            ->where('addressable_id', $user->id)
+            ->where('addressable_type', User::class)
+            ->first();
+
+        if (!$address) {
+            return redirect()->route('addresses.index')->withErrors(['not_found' => 'Address not found or you do not have permission to delete it.']);
+        }
+
+        $address->delete();
+        return redirect()->route('addresses.index')->with('success', 'Address deleted successfully.');
+    }
 }

@@ -4,11 +4,11 @@
 
     
 <script>
-    const MAPTILER_KEY = "{{ env('MAPTILER_KEY') }}";
 
-    const locations = @json($locations);
-    const center = locations.length > 0 
-        ? [locations[0].longitude, locations[0].latitude]
+
+    let mapLocationsData = @json($locations);
+    const center = mapLocationsData.length > 0 
+        ? [mapLocationsData[0].longitude, mapLocationsData[0].latitude]
         : [105.8342, 21.0278]; 
 
     // ==============================
@@ -26,12 +26,12 @@
     // ==============================
     // Hiển thị các markers
     // ==============================
-    locations.forEach(location => {
+    mapLocationsData.forEach(location => {
         const marker = new maplibregl.Marker({ color: '#e63946' })
             .setLngLat([location.longitude, location.latitude])
             .setPopup(
                 new maplibregl.Popup({ offset: 25 })
-                    .setHTML(`<strong>${location.address_line}</strong>`)
+                    .setHTML(`<strong>${location.formatted_address}</strong>`)
             )
             .addTo(map);
     });
@@ -39,9 +39,9 @@
     // ==============================
     // Tự động fit bản đồ để hiển thị tất cả các điểm
     // ==============================
-    if (locations.length > 1) {
+    if (mapLocationsData.length > 1) {
         const bounds = new maplibregl.LngLatBounds();
-        locations.forEach(loc => bounds.extend([loc.longitude, loc.latitude]));
+        mapLocationsData.forEach(loc => bounds.extend([loc.longitude, loc.latitude]));
         map.fitBounds(bounds, { padding: 80 });
     }
 

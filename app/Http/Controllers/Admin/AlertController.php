@@ -61,4 +61,5 @@ class AlertController extends Controller
         return redirect()->route('admin.alerts.index')->with('success', 'Alert created successfully.');
     }
 
+
 }

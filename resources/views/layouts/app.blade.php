@@ -11,9 +11,12 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-         <!-- MapLibre CSS & JS -->
+        <!-- MapLibre CSS & JS -->
         <link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
         <script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
+        <script>
+            window.MAPTILER_KEY = "{{ env('MAPTILER_KEY') }}";
+        </script>
 
         <style>
             #map {

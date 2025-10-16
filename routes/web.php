@@ -24,6 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/addresses', [AddressController::class, 'index'])->name('addresses.index');
     Route::get('/addresses/create',[AddressController::class, 'createAddressForUser'])->name('addresses.create');
     Route::post('/addresses', [AddressController::class, 'storeAddressForUser'])->name('addresses.store');
+    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
 });
 
 Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
