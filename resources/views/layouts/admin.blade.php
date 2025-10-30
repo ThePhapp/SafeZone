@@ -11,6 +11,33 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <!-- MapLibre CSS & JS -->
+        <link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+        <script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+        <script>
+            window.MAPTILER_KEY = "{{ env('MAPTILER_KEY') }}";
+        </script>
+
+        <style>
+            #map {
+                width: 100%;
+                height: 500px;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                position: relative;
+            }
+            .suggestions::-webkit-scrollbar {
+                width: 6px;
+            }
+            .suggestions::-webkit-scrollbar-thumb {
+                background-color: #cbd5e1;
+                border-radius: 3px;
+            }
+        </style>
+        
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -27,6 +54,8 @@
             <main>
                 @yield('content')
             </main>
+            @yield('footer')
+            @include('layouts.footer')
         </div>
     </body>
 </html>
