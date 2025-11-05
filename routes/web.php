@@ -40,6 +40,15 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     Route::get('/alerts/{id}', [AlertController::class, 'show'])->name('alerts.show');
     Route::get('/alerts/{id}/edit', [AlertController::class, 'edit'])->name('alerts.edit');
     Route::put('/alerts/{id}', [AlertController::class, 'update'])->name('alerts.update');
+
+    // User management
+    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{id}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+
+    // Statistics
+    Route::get('/statistics', [\App\Http\Controllers\Admin\AdminDashboard::class, 'statistics'])->name('statistics');
 });
 
 require __DIR__.'/auth.php';

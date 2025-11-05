@@ -19,7 +19,7 @@
         <div class="bg-gradient-to-br from-indigo-600 to-indigo-400 rounded-xl p-6 shadow text-white flex flex-col items-center">
             <div class="text-3xl font-bold">{{ $usersCount ?? '0' }}</div>
             <div class="mt-2 text-sm">Users</div>
-            <a href="#" class="mt-4 text-xs underline">Manage Users</a>
+            <a href="{{ route('admin.users.index') }}" class="mt-4 text-xs underline">Manage Users</a>
         </div>
         <div class="bg-gradient-to-br from-green-600 to-green-400 rounded-xl p-6 shadow text-white flex flex-col items-center">
             <div class="text-3xl font-bold">{{ $activeAlerts ?? '0' }}</div>
@@ -28,7 +28,7 @@
         <div class="bg-gradient-to-br from-yellow-600 to-yellow-400 rounded-xl p-6 shadow text-white flex flex-col items-center">
             <div class="text-3xl font-bold">{{ $statisticsCount ?? '0' }}</div>
             <div class="mt-2 text-sm">Statistics</div>
-            <a href="#" class="mt-4 text-xs underline">View Reports</a>
+            <a href="{{ route('admin.statistics') }}" class="mt-4 text-xs underline">View Reports</a>
         </div>
     </div>
 
@@ -75,13 +75,23 @@
         </table>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="flex gap-4 mb-8">
-        <a href="{{ route('admin.alerts.create') }}" class="bg-pink-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-pink-700 transition">Add Alert</a>
-        <a href="#" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-indigo-700 transition">Manage Users</a>
-        <a href="#" class="bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold shadow hover:bg-yellow-700 transition">View Statistics</a>
+    <!-- Weather Map Section -->
+    <div class="bg-gradient-to-br from-sky-900 to-sky-700 rounded-2xl shadow-lg p-6 mb-8">
+        <h3 class="text-lg font-bold text-sky-300 mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 01.88-7.9A5 5 0 0117 7a4.5 4.5 0 01.5 9H5.5A3.5 3.5 0 013 15z" /></svg>
+            Global Weather Map
+        </h3>
+        <div class="rounded-xl overflow-hidden border border-sky-700 shadow-lg">
+            <iframe
+                width="100%"
+                height="500"
+                src="https://earth.nullschool.net/"
+                frameborder="0"
+                style="border:0; min-height:400px; background:#0a2540;"
+                allowfullscreen
+            ></iframe>
+        </div>
     </div>
-
     <!-- Map Section -->
     <div class="h-[400px]">
         <x-map-view :locations="$locations ?? []" :zoom="7" />
