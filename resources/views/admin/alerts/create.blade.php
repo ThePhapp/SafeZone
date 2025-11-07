@@ -106,6 +106,22 @@
                 </select>
             </div>
 
+<div class="mb-4 mt-4">
+    <label for="radius" class="block text-gray-300 font-semibold mb-2">
+        Bán kính cảnh báo (mét)
+    </label>
+    <input
+        type="number"
+        name="radius"
+        id="radius"
+        value="{{ old('radius', 0) }}"
+        min="0"
+        class="w-full px-4 py-2 bg-gray-800 text-white border border-gray-600 rounded focus:ring-2 focus:ring-pink-500 focus:outline-none"
+        placeholder="Nhập bán kính, ví dụ 500">
+    <p class="text-xs text-gray-400 mt-1">Đơn vị tính: mét (m). Giá trị 0 nghĩa là không giới hạn phạm vi.</p>
+</div>
+
+
             <div class="flex gap-2">
                 <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-pink-700 transition">
                     Create

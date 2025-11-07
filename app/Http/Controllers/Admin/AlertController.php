@@ -66,6 +66,7 @@ class AlertController extends Controller
         $alert->description = $request->input('description');
         $alert->type = $request->input('type');
         $alert->severity = $request->input('severity');
+        $alert->radius = $request->input('radius', 0);
         $alert->created_by = Auth()->user()->id;
         $alert->save();
 
