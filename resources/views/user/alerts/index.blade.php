@@ -31,66 +31,153 @@
     <x-alert />
 
     <div class="max-w-7xl mx-auto py-10 sm:px-6">
-
         <!-- MAP -->
         <div class="h-[500px] mb-6">
-            <x-map-alert :alerts="$alerts" :zoom="7" />
+            <x-map-alert :alerts="$alerts" :zoom="7" :user-addresses="$userAddresses" />
         </div>
 
-        <form method="GET" class="mb-6 bg-gray-100 dark:bg-gray-800 p-6 rounded-xl shadow-md flex flex-wrap gap-4 items-end">
+        <div class="max-w-7xl mx-auto py-10 sm:px-6">
+    <!-- 🔹 Nút lọc cấp cao -->
+    <div class="flex justify-center mb-6 gap-3">
+        <a href="{{ route('alerts.index', ['mode' => 'all']) }}"
+           class="px-5 py-2.5 rounded-xl font-medium flex items-center gap-2
+                  {{ $mode === 'all' ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' }}
+                  hover:scale-[1.03] transition-all duration-150">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h18M3 12h18M3 20h18"/>
+            </svg>
+            Tất cả cảnh báo
+        </a>
 
-    <!-- Search -->
-    <div class="flex-1 min-w-[200px]">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tìm kiếm</label>
-        <input type="text" name="q" value="{{ request('q') }}"
-               placeholder="Nhập từ khóa..."
-               class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        <a href="{{ route('alerts.index', ['mode' => 'near']) }}"
+           class="px-5 py-2.5 rounded-xl font-medium flex items-center gap-2
+                  {{ $mode === 'near' ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100' }}
+                  hover:scale-[1.03] transition-all duration-150">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3z"/>
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 22s8-7.582 8-14a8 8 0 10-16 0c0 6.418 8 14 8 14z"/>
+            </svg>
+            Cảnh báo gần bạn
+        </a>
     </div>
 
-    <!-- Severity -->
-    <div class="min-w-[150px]">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Độ nghiêm trọng</label>
-        <select name="severity"
-                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400">
-            <option value="">Tất cả</option>
-            <option value="low" {{ request('severity')=='low' ? 'selected' : '' }}>Low</option>
-            <option value="medium" {{ request('severity')=='medium' ? 'selected' : '' }}>Medium</option>
-            <option value="high" {{ request('severity')=='high' ? 'selected' : '' }}>High</option>
-            <option value="critical" {{ request('severity')=='critical' ? 'selected' : '' }}>Critical</option>
-        </select>
-    </div>
 
-    <!-- Type -->
-    <div class="min-w-[150px]">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loại cảnh báo</label>
-        <select name="type"
-                class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-green-400 focus:border-green-400">
-            <option value="">Tất cả</option>
-            <option value="storm" {{ request('type')=='storm' ? 'selected' : '' }}>Bão</option>
-            <option value="flood" {{ request('type')=='flood' ? 'selected' : '' }}>Lũ lụt</option>
-            <option value="fire" {{ request('type')=='fire' ? 'selected' : '' }}>Cháy rừng</option>
-        </select>
-    </div>
+       <form method="GET"
+      class="mb-8 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 rounded-2xl shadow-lg space-y-4">
 
-    <!-- Date From -->
-    <div class="min-w-[150px]">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Từ ngày</label>
-        <input type="date" name="from_date" value="{{ request('from_date') }}"
-               class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- Search -->
+        <div>
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <!-- Search Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M21 21l-4.35-4.35M16.65 10.5a6.15 6.15 0 11-12.3 0 6.15 6.15 0 0112.3 0z"/>
+                </svg>
+                Tìm kiếm
+            </label>
+            <input type="text" name="q" value="{{ request('q') }}"
+                   placeholder="Nhập từ khóa..."
+                   class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 
+                          text-gray-900 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 
+                          focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+        </div>
+
+        <!-- Severity -->
+        <div>
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <!-- Alert Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-500" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M12 9v4m0 4h.01M4.93 19h14.14a2 2 0 001.74-3l-7.07-12a2 2 0 00-3.48 0l-7.07 12A2 2 0 004.93 19z"/>
+                </svg>
+                Độ nghiêm trọng
+            </label>
+            <select name="severity"
+                    class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 
+                           text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-150">
+                <option value="">Tất cả</option>
+                <option value="low" {{ request('severity')=='low' ? 'selected' : '' }}>Low</option>
+                <option value="medium" {{ request('severity')=='medium' ? 'selected' : '' }}>Medium</option>
+                <option value="high" {{ request('severity')=='high' ? 'selected' : '' }}>High</option>
+                <option value="critical" {{ request('severity')=='critical' ? 'selected' : '' }}>Critical</option>
+            </select>
+        </div>
+
+        <!-- Type -->
+        <div>
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <!-- Cloud/Storm Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M3 15a4 4 0 010-8 5 5 0 019.58-1.19A4.5 4.5 0 0119.5 12H20a4 4 0 010 8h-7"/>
+                </svg>
+                Loại cảnh báo
+            </label>
+            <select name="type"
+                    class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 
+                           text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all duration-150">
+                <option value="">Tất cả</option>
+                <option value="storm" {{ request('type')=='storm' ? 'selected' : '' }}>Bão</option>
+                <option value="flood" {{ request('type')=='flood' ? 'selected' : '' }}>Lũ lụt</option>
+                <option value="fire" {{ request('type')=='fire' ? 'selected' : '' }}>Cháy rừng</option>
+            </select>
+        </div>
+
+        <!-- Date -->
+        <div>
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <!-- Calendar Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Từ ngày
+            </label>
+            <input type="date" name="from_date" value="{{ request('from_date') }}"
+                   class="mt-1 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 
+                          text-gray-900 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+        </div>
     </div>
 
     <!-- Buttons -->
-    <div class="flex gap-2 mt-2 sm:mt-0">
+    <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
         <button type="submit"
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors">
+                class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-medium rounded-xl shadow-md 
+                       hover:shadow-lg hover:from-blue-700 transition-all duration-150 flex items-center gap-2">
+            <!-- Filter Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 4h18M5 8h14M8 12h8m-3 4h2m-6 4h10"/>
+            </svg>
             Lọc
         </button>
+
         <a href="{{ route('alerts.index') }}"
-           class="px-4 py-2 bg-gray-400 text-white rounded-lg shadow hover:bg-gray-500 transition-colors">
-            Clear
+           class="px-5 py-2.5 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-medium rounded-xl shadow-sm 
+                  hover:bg-gray-400 dark:hover:bg-gray-600 transition-all duration-150 flex items-center gap-2">
+            <!-- X Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Xóa lọc
         </a>
     </div>
 </form>
+
+
 
 
 
@@ -157,16 +244,16 @@
                         </div>
 
                         <div class="mt-4 flex justify-between items-center">
-                                <a href="#"
-                                   onclick=""
-                                   class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    View
-                                </a>
+                            <a href="#"
+                               onclick=""
+                               class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                View
+                            </a>
                         </div>
                     </div>
 
@@ -208,31 +295,31 @@
     </div>
 
     @push('scripts')
-        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-        <script>
-            const socket = io("http://localhost:6001");
+    <script>
+        const socket = io("http://localhost:6001");
 
-            socket.on("connect", () => {
-                console.log("✅ Đã kết nối realtime server:", socket.id);
-            });
+        socket.on("connect", () => {
+            console.log("✅ Đã kết nối realtime server:", socket.id);
+        });
 
-            socket.on("alertCreated", (alert) => {
-                console.log("📢 Có alert mới:", alert);
-                addAlert(alert);
+        socket.on("alertCreated", (alert) => {
+            console.log("📢 Có alert mới:", alert);
+            addAlert(alert);
 
-                if (typeof window.addAlertToMap === "function") {
-                    window.addAlertToMap(alert);
-                } else {
-                    console.warn("⚠️ Hàm addAlertToMap chưa sẵn sàng");
-                }
-            });
+            if (typeof window.addAlertToMap === "function") {
+                window.addAlertToMap(alert);
+            } else {
+                console.warn("⚠️ Hàm addAlertToMap chưa sẵn sàng");
+            }
+        });
 
-            function addAlert(alert) {
-                const grid = document.getElementById("alert-list");
-                const template = document.getElementById("alert-template").content.cloneNode(true);
+        function addAlert(alert) {
+            const grid = document.getElementById("alert-list");
+            const template = document.getElementById("alert-template").content.cloneNode(true);
 
-                const card = template.querySelector("div");
+            const card = template.querySelector("div");
 
                 // IMAGE
                 const img = card.querySelector("img");
@@ -283,10 +370,10 @@
                 grid.prepend(card);
             }
 
-            function capitalize(str) {
-                return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
-            }
-        </script>
-    @endpush>
+        function capitalize(str) {
+            return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+        }
+    </script>
+    @endpush
 
 </x-app-layout>

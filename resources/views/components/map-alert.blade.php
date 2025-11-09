@@ -1,10 +1,11 @@
-<div class="relative w-full h-full">
-    <div id="map" class="w-full h-full rounded-lg overflow-hidden shadow"></div>
-</div>
+    <div class="relative w-full h-full">
+        <div id="map" class="w-full h-full rounded-lg overflow-hidden shadow"></div>
+    </div>
 
-<script>
+    <script>
     let alerts = @json($alerts->resolve());
     console.log(alerts);
+    let userAddresses = @json($userAddresses);
 
     const center = alerts.length > 0 
         ? [alerts[0].address.longitude, alerts[0].address.latitude]
@@ -140,6 +141,22 @@
         });
     });
 
+    // ==============================
+    // Hiển thị vị trí người dùng
+    // ==============================
+    if (userAddresses && userAddresses.length > 0) {
+        userAddresses.forEach(addr => {
+            let markerColor = '#e63946';
+            let markerPopup = `<strong>${addr.formatted_address}</strong>`;
+
+            const marker = new maplibregl.Marker({ color: markerColor })
+                .setLngLat([addr.longitude, addr.latitude])
+                .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(markerPopup))
+                .addTo(map);
+        });
+    }
+
+
     function getColorBySeverity(severity) {
         switch (severity) {
             case 'low': return '#00BFFF';      // xanh dương nhạt
@@ -169,7 +186,7 @@
         });
     }
 
-        // ==============================
+    // ==============================
     // Hàm thêm alert mới vào bản đồ (Realtime)
     // ==============================
     function addAlertToMap(alert) {

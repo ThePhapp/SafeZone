@@ -14,11 +14,14 @@ class MapAlert extends Component
      */
     public $alerts;
     public $zoom;
-    public function __construct($alerts = [], $zoom=8)
+    public $userAddresses;
+
+    public function __construct($alerts = [], $zoom=8, $userAddresses = [])
     {
         //
         $this->alerts = $alerts;
         $this->zoom = $zoom;
+        $this->userAddresses = $userAddresses;
     }
 
     /**
