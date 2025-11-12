@@ -26,6 +26,7 @@ app.post("/new-alert", (req, res) => {
   res.json({ status: "ok" });
 });
 
-server.listen(6001, () => {
-  console.log("Realtime server chạy ở http://localhost:6001");
+const PORT = process.env.PORT || 6001;
+server.listen(PORT, () => {
+  console.log(`Realtime server chạy ở http://localhost:${PORT}`);
 });
