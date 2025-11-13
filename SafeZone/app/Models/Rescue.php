@@ -19,6 +19,7 @@ class Rescue extends Model
         'started_at',
         'completed_at',
         'contact_phone',
+        'image_path',
         'metadata',
     ];
 
