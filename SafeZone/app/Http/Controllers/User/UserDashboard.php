@@ -15,28 +15,22 @@ class UserDashboard extends Controller
     public function index()
     {
         // Lấy alerts theo severity
-        $criticalAlerts = AlertResource::collection(
-            Alert::with(['address', 'creator'])
-                ->where('severity', 'critical')
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get()
-        );
+        $criticalAlerts = Alert::with(['address', 'creator'])
+            ->where('severity', 'critical')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-        $highAlerts = AlertResource::collection(
-            Alert::with(['address', 'creator'])
-                ->where('severity', 'high')
-                ->orderBy('created_at', 'desc')
-                ->take(5)
-                ->get()
-        );
+        $highAlerts = Alert::with(['address', 'creator'])
+            ->where('severity', 'high')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
-        $recentAlerts = AlertResource::collection(
-            Alert::with(['address', 'creator'])
-                ->orderBy('created_at', 'desc')
-                ->take(10)
-                ->get()
-        );
+        $recentAlerts = Alert::with(['address', 'creator'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
 
         // Thống kê
         $stats = [
@@ -62,7 +56,61 @@ class UserDashboard extends Controller
             }
         }
 
-        return view('dashboard', compact('criticalAlerts', 'highAlerts', 'recentAlerts', 'stats', 'alertsByType'));
+        // Calculate user safety status based on nearby alerts
+        $safetyStatus = 'safe';
+        $nearbyAlerts = [];
+        
+        $userAddresses = auth()->user()->addresses;
+        
+        if ($userAddresses->count() > 0) {
+            foreach ($userAddresses as $userAddress) {
+                // Get all alerts with addresses
+                $alerts = Alert::with('address')
+                    ->whereHas('address')
+                    ->get();
+                
+                foreach ($alerts as $alert) {
+                    if ($alert->address) {
+                        // Calculate distance using Haversine formula
+                        $earthRadius = 6371000; // meters
+                        
+                        $lat1 = deg2rad($userAddress->latitude);
+                        $lon1 = deg2rad($userAddress->longitude);
+                        $lat2 = deg2rad($alert->address->latitude);
+                        $lon2 = deg2rad($alert->address->longitude);
+                        
+                        $deltaLat = $lat2 - $lat1;
+                        $deltaLon = $lon2 - $lon1;
+                        
+                        $a = sin($deltaLat / 2) * sin($deltaLat / 2) +
+                             cos($lat1) * cos($lat2) *
+                             sin($deltaLon / 2) * sin($deltaLon / 2);
+                        
+                        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+                        $distance = $earthRadius * $c;
+                        
+                        $alertRadius = ($alert->radius ?? 500) + 1000; // Alert radius + 1km buffer
+                        
+                        if ($distance <= $alertRadius) {
+                            $nearbyAlerts[] = [
+                                'alert' => $alert,
+                                'distance' => $distance
+                            ];
+                            
+                            // Update safety status based on severity
+                            if ($alert->severity === 'critical') {
+                                $safetyStatus = 'dangerous';
+                                break 2; // Exit both loops
+                            } elseif ($alert->severity === 'high' && $safetyStatus !== 'dangerous') {
+                                $safetyStatus = 'unsafe';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return view('dashboard', compact('criticalAlerts', 'highAlerts', 'recentAlerts', 'stats', 'alertsByType', 'safetyStatus', 'nearbyAlerts'));
     }
 
     /**

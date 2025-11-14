@@ -1,78 +1,130 @@
 <x-app-layout>
     <div class="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950">
+            
             <div class="mb-8 bg-gradient-to-br from-slate-800/40 to-slate-900/20 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 shadow-xl">
                 <iframe
                     class="w-full rounded-2xl overflow-hidden shadow-2xl"
-                    style="height: 600px;"
+                    style="height: 600px; position: relative; z-index: 0;"
                     src="https://embed.windy.com/embed2.html?lat=15.5&lon=108.0&zoom=5&level=surface&overlay=wind&menu=&message=true&marker=&calendar=&pressure=true&type=map&location=coordinates"
                     frameborder="0"
                 ></iframe>
             </div>
+            <!-- Phone Number Alert Banner -->
+            @if(auth()->user() && empty(auth()->user()->phone))
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+                    <div class="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4 mb-6 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-amber-500/30 rounded-lg">
+                                <svg class="w-6 h-6 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-white font-semibold">Add your phone number</p>
+                                <p class="text-amber-200/70 text-sm">Receive SMS alerts for critical disasters near you</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('profile.edit') }}" class="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-lg transition-all duration-200 flex items-center gap-2 whitespace-nowrap">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Add Phone Number
+                        </a>
+                    </div>
+                </div>
+            @endif
             <!-- Safety Status Card below map -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
                 <div class="bg-gradient-to-br from-slate-800/40 to-slate-900/20 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 shadow-xl">
                     <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                        <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                        @if($safetyStatus === 'dangerous')
+                            <svg class="w-8 h-8 text-red-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        @elseif($safetyStatus === 'unsafe')
+                            <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        @else
+                            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        @endif
                         Safety Status
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-                        <!-- Safe -->
-                        <div class="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/30">
-                            <div class="flex items-center gap-4">
-                                <div class="p-4 bg-emerald-500/30 rounded-xl">
-                                    <svg class="w-10 h-10 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-xl font-semibold text-white">Safe</p>
-                                    <p class="text-emerald-200/70 text-sm">No significant risks</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{--
-                        Add conditional rendering for the 2 cards below when needed, for example:
-                        @if($stats['high_alerts'] > 0) ... Unsafe ... @endif
-                        @if($stats['critical_alerts'] > 0) ... Dangerous ... @endif
-
-                        <!-- Unsafe (hidden by default, will check conditions later) -->
-                        <div class="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-500/30">
-                            <div class="flex items-center gap-4">
-                                <div class="p-4 bg-amber-500/30 rounded-xl">
-                                    <svg class="w-10 h-10 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-xl font-semibold text-white">Unsafe</p>
-                                    <p class="text-amber-200/70 text-sm">Use caution</p>
+                        @if($safetyStatus === 'dangerous')
+                            <!-- Dangerous -->
+                            <div class="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br from-rose-500/20 to-pink-500/20 border border-rose-500/30">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-4 bg-rose-500/30 rounded-xl">
+                                        <svg class="w-10 h-10 text-rose-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xl font-semibold text-white">Dangerous</p>
+                                        <p class="text-rose-200/70 text-sm">Critical alerts in your area - Limit movement</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Dangerous (hidden by default, will check conditions later) -->
-                        <div class="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br from-rose-500/20 to-pink-500/20 border border-rose-500/30">
-                            <div class="flex items-center gap-4">
-                                <div class="p-4 bg-rose-500/30 rounded-xl">
-                                    <svg class="w-10 h-10 text-rose-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p class="text-xl font-semibold text-white">Dangerous</p>
-                                    <p class="text-rose-200/70 text-sm">Limit movement</p>
+                        @elseif($safetyStatus === 'unsafe')
+                            <!-- Unsafe -->
+                            <div class="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-500/30">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-4 bg-amber-500/30 rounded-xl">
+                                        <svg class="w-10 h-10 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xl font-semibold text-white">Unsafe</p>
+                                        <p class="text-amber-200/70 text-sm">High severity alerts nearby - Use caution</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        --}}
+                        @else
+                            <!-- Safe -->
+                            <div class="group relative overflow-hidden rounded-xl p-6 bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/30">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-4 bg-emerald-500/30 rounded-xl">
+                                        <svg class="w-10 h-10 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xl font-semibold text-white">Safe</p>
+                                        <p class="text-emerald-200/70 text-sm">No significant risks in your area</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
-                    <p class="text-xs text-slate-500 mt-4 italic">Static card — you can add conditional display later.</p>
+                    @if(count($nearbyAlerts) > 0)
+                        <div class="mt-4 p-3 bg-slate-800/50 rounded-lg">
+                            <p class="text-xs text-slate-400 mb-2"><strong>{{ count($nearbyAlerts) }}</strong> alert(s) detected within your area radius:</p>
+                            <div class="space-y-1">
+                                @foreach(array_slice($nearbyAlerts, 0, 3) as $nearby)
+                                    <div class="text-xs text-slate-300 flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full 
+                                            {{ $nearby['alert']->severity === 'critical' ? 'bg-red-400' : '' }}
+                                            {{ $nearby['alert']->severity === 'high' ? 'bg-orange-400' : '' }}
+                                            {{ $nearby['alert']->severity === 'medium' ? 'bg-yellow-400' : '' }}
+                                            {{ $nearby['alert']->severity === 'low' ? 'bg-blue-400' : '' }}
+                                        "></span>
+                                        <span class="flex-1">{{ $nearby['alert']->title }}</span>
+                                        <span class="text-slate-500">~{{ number_format($nearby['distance'] / 1000, 1) }} km</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-xs text-slate-500 mt-4 italic">Based on your registered address(es).</p>
+                    @endif
                 </div>
             </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+            
 
 
             <!-- Critical and High Alerts -->

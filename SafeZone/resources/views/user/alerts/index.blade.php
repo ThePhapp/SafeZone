@@ -34,7 +34,7 @@
         <!-- MAP -->
         <div class="h-[500px] mb-6">
             {{-- map expects a resource collection (transformed) in $alerts --}}
-            <x-map-alert :alerts="$alerts" :zoom="7" :user-addresses="$userAddresses" />
+            <x-map-alert :alerts="$alerts" :zoom="7" :user-addresses="$userAddresses" :is-admin="false" />
         </div>
 
         <!-- Content -->

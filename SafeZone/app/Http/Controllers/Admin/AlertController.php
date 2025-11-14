@@ -11,6 +11,9 @@ use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
+use App\Models\User;
+use App\Notifications\AlertCreatedNotification;
 
 
 
@@ -23,7 +26,7 @@ public function index(Request $request)
     $search = $request->input('search');
 
     $query = Alert::with('address')
-        ->whereIn('type', ['flood', 'fire', 'storm', 'earthquake'])
+        ->whereIn('type', ['flood', 'fire', 'storm', 'earthquake', 'other'])
         ->whereIn('severity', ['low', 'medium', 'high', 'critical']);
 
     if (!empty($status) && $status !== 'all') {
@@ -104,7 +107,40 @@ public function index(Request $request)
         $address->longitude = $request->input('longitude');
         $alert->address()->save($address);
         $alert->refresh();
+        // Broadcast to realtime server
         Http::post('http://localhost:6001/new-alert', $alert->load('address')->toArray());
+
+        // Notify all users within range (chunked for memory safety), including creator and admins
+        try {
+            $alertLat = $alert->address->latitude;
+            $alertLng = $alert->address->longitude;
+            $alertRadius = $alert->radius ?? 0;
+            $extraDistance = 1000; // 1000 mét buffer
+
+            // Get all users (including admins and creator) who have at least one address near the alert
+            User::query()
+                ->whereNotNull('email')
+                ->whereHas('addresses', function ($q) use ($alertLat, $alertLng, $alertRadius, $extraDistance) {
+                    $q->whereNotNull('latitude')
+                      ->whereNotNull('longitude')
+                      ->whereRaw(
+                          "(6371000 * acos(
+                              cos(radians(?)) * cos(radians(latitude)) *
+                              cos(radians(longitude) - radians(?)) +
+                              sin(radians(?)) * sin(radians(latitude))
+                          )) <= ?",
+                          [$alertLat, $alertLng, $alertLat, $alertRadius + $extraDistance]
+                      );
+                })
+                ->orderBy('id')
+                ->chunkById(200, function ($users) use ($alert) {
+                    Notification::send($users, new AlertCreatedNotification($alert));
+                });
+        } catch (\Throwable $e) {
+            Log::error('Failed to send alert email notifications: '.$e->getMessage(), [
+                'exception' => $e,
+            ]);
+        }
 
 
         return redirect()->route('admin.alerts.index')->with('success', 'Alert created successfully.');

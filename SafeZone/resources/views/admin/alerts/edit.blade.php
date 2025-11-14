@@ -89,11 +89,11 @@
             <div class="mb-4">
                 <label class="block text-gray-300 font-semibold mb-2">Type</label>
                 <select name="type" class="w-full px-4 py-2 bg-gray-800 text-white border border-gray-600 rounded focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                    <option value="1" {{ old('type', $alert->type) == 1 ? 'selected' : '' }}>Flood</option>
-                    <option value="2" {{ old('type', $alert->type) == 2 ? 'selected' : '' }}>Storm</option>
-                    <option value="3" {{ old('type', $alert->type) == 3 ? 'selected' : '' }}>Earthquake</option>
-                    <option value="4" {{ old('type', $alert->type) == 4 ? 'selected' : '' }}>Fire</option>
-                    <option value="5" {{ old('type', $alert->type) == 5 ? 'selected' : '' }}>Other</option>
+                    <option value="flood" {{ old('type', $alert->type) == 'flood' ? 'selected' : '' }}>Flood</option>
+                    <option value="storm" {{ old('type', $alert->type) == 'storm' ? 'selected' : '' }}>Storm</option>
+                    <option value="earthquake" {{ old('type', $alert->type) == 'earthquake' ? 'selected' : '' }}>Earthquake</option>
+                    <option value="fire" {{ old('type', $alert->type) == 'fire' ? 'selected' : '' }}>Fire</option>
+                    <option value="other" {{ old('type', $alert->type) == 'other' ? 'selected' : '' }}>Other</option>
                 </select>
             </div>
 
@@ -101,10 +101,10 @@
             <div class="mb-4">
                 <label class="block text-gray-300 font-semibold mb-2">Severity</label>
                 <select name="severity" class="w-full px-4 py-2 bg-gray-800 text-white border border-gray-600 rounded focus:ring-2 focus:ring-pink-500 focus:outline-none">
-                    <option value="1" {{ old('severity', $alert->severity) == 1 ? 'selected' : '' }}>Low</option>
-                    <option value="2" {{ old('severity', $alert->severity) == 2 ? 'selected' : '' }}>Medium</option>
-                    <option value="3" {{ old('severity', $alert->severity) == 3 ? 'selected' : '' }}>High</option>
-                    <option value="4" {{ old('severity', $alert->severity) == 4 ? 'selected' : '' }}>Critical</option>
+                    <option value="low" {{ old('severity', $alert->severity) == 'low' ? 'selected' : '' }}>Low</option>
+                    <option value="medium" {{ old('severity', $alert->severity) == 'medium' ? 'selected' : '' }}>Medium</option>
+                    <option value="high" {{ old('severity', $alert->severity) == 'high' ? 'selected' : '' }}>High</option>
+                    <option value="critical" {{ old('severity', $alert->severity) == 'critical' ? 'selected' : '' }}>Critical</option>
                 </select>
             </div>
 
@@ -117,7 +117,7 @@
         type="number"
         name="radius"
         id="radius"
-        value="{{ old('radius', 0) }}"
+        value="{{ old('radius', $alert->radius ?? 0) }}"
         min="0"
         class="w-full px-4 py-2 bg-gray-800 text-white border border-gray-600 rounded focus:ring-2 focus:ring-pink-500 focus:outline-none"
         placeholder="Nhập bán kính, ví dụ 500">

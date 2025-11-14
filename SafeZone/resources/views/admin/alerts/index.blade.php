@@ -13,7 +13,7 @@
 
         <!-- Bản đồ chính -->
         <div class="h-[500px] mb-6">
-            <x-map-alert :alerts="$alerts" :zoom="7"/>
+            <x-map-alert :alerts="$alerts" :zoom="7" :is-admin="true" />
         </div>
 </div>
 

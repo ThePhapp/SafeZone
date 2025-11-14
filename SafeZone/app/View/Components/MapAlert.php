@@ -15,13 +15,15 @@ class MapAlert extends Component
     public $alerts;
     public $zoom;
     public $userAddresses;
+    public $isAdmin;
 
-    public function __construct($alerts = [], $zoom=8, $userAddresses = [])
+    public function __construct($alerts = [], $zoom=8, $userAddresses = [], $isAdmin = false)
     {
         //
         $this->alerts = $alerts;
         $this->zoom = $zoom;
         $this->userAddresses = $userAddresses;
+        $this->isAdmin = $isAdmin; 
     }
 
     /**
