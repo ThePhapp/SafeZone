@@ -53,7 +53,7 @@
 
                     <p class="text-slate-400 text-sm">
                         <span class="font-semibold text-cyan-400">{{ ucfirst($alerts[0]['type'] ?? 'N/A') }}</span> • 
-                        Issued at {{ $alerts[0]['issued_at'] ?? '-' }}
+                        Issued at {{ $alerts[0]['created_at'] ?? '-' }}
                     </p>
                 </div>
 
@@ -149,7 +149,7 @@
                             </svg>
                             <div>
                                 <p class="text-xs text-slate-400 uppercase font-semibold">Issued</p>
-                                <p class="text-slate-200 text-sm">{{ $alerts[0]['issued_at'] ?? '-' }}</p>
+                                <p class="text-slate-200 text-sm">{{ $alerts[0]['created_at'] ?? '-' }}</p>
                             </div>
                         </div>
 
@@ -171,7 +171,7 @@
                             </svg>
                             <div>
                                 <p class="text-xs text-slate-400 uppercase font-semibold">Created By</p>
-                                <p class="text-slate-200 text-sm">{{ $alerts[0]['created_by'] ?? 'System' }}</p>
+                                <p class="text-slate-200 text-sm">Admin {{ $alerts[0]['created_by'] ?? 'System' }}</p>
                             </div>
                         </div>
                     </div>

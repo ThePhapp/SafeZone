@@ -26,7 +26,7 @@ public function index(Request $request)
     $search = $request->input('search');
 
     $query = Alert::with('address')
-        ->whereIn('type', ['flood', 'fire', 'storm', 'earthquake'])
+        ->whereIn('type', ['flood', 'fire', 'storm', 'earthquake', 'other'])
         ->whereIn('severity', ['low', 'medium', 'high', 'critical']);
 
     if (!empty($status) && $status !== 'all') {
