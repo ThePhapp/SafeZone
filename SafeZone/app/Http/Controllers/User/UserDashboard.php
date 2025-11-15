@@ -59,9 +59,10 @@ class UserDashboard extends Controller
         // Calculate user safety status based on nearby alerts
         $safetyStatus = 'safe';
         $nearbyAlerts = [];
-        
-        $userAddresses = auth()->user()->addresses;
-        
+
+        $user = auth()->user();
+        $userAddresses = $user ? $user->addresses : collect();
+
         if ($userAddresses->count() > 0) {
             foreach ($userAddresses as $userAddress) {
                 // Get all alerts with addresses

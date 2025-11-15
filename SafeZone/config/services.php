@@ -49,5 +49,10 @@ return [
         'key' => env('WINDY_API_KEY'),
     ],
 
+    'node_server' => [
+        'url' => env('NODE_SERVER_URL'),
+        'key' => env('NODE_SERVER_KEY'),
+    ],
+
 
 ];
