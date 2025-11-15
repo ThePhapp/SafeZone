@@ -67,9 +67,11 @@
     // Display markers
     // ==============================
     alerts.forEach(alert => {
-        let iconUrl = `${base}/logo.png`;
+        let iconUrl = `${base}/flag.png`;
+        let iconSize = '40px'; // Default smaller size for flag
 
         if (alert.type === 'flood') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/flood-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/flood-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/flood-blue.png`;
@@ -77,6 +79,7 @@
         }
 
         if (alert.type === 'fire') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/fire-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/fire-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/fire-blue.png`;
@@ -84,6 +87,7 @@
         }
 
         if (alert.type === 'earthquake') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/earthquake-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/earthquake-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/earthquake-blue.png`;
@@ -91,6 +95,7 @@
         }
 
         if (alert.type === 'storm') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/storm-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/storm-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/storm-blue.png`;
@@ -98,8 +103,8 @@
         }
 
         const el = document.createElement('div');
-        el.style.width = '60px';
-        el.style.height = '60px';
+        el.style.width = iconSize;
+        el.style.height = iconSize;
         el.style.backgroundImage = `url(${iconUrl})`;
         el.style.backgroundSize = 'contain';
         el.style.backgroundRepeat = 'no-repeat';
@@ -260,38 +265,59 @@
         const base = '{{ asset("images") }}';
 
         // === Select icon similar to old logic ===
-        let iconUrl = `${base}/logo.png`;
+        let iconUrl = `${base}/flag.png`;
+        let iconSize = '40px'; // Default smaller size for flag
 
         if (alert.type === 'flood') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/flood-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/flood-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/flood-blue.png`;
             else if (alert.severity === 'critical') iconUrl = `${base}/flood-red.png`;
         } else if (alert.type === 'fire') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/fire-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/fire-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/fire-blue.png`;
             else if (alert.severity === 'critical') iconUrl = `${base}/fire-red.png`;
         } else if (alert.type === 'storm') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/storm-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/storm-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/storm-blue.png`;
             else if (alert.severity === 'critical') iconUrl = `${base}/storm-red.png`;
         } else if (alert.type === 'earthquake') {
+            iconSize = '60px';
             if (alert.severity === 'high') iconUrl = `${base}/earthquake-orange.png`;
             else if (alert.severity === 'medium') iconUrl = `${base}/earthquake-yellow.png`;
             else if (alert.severity === 'low') iconUrl = `${base}/earthquake-blue.png`;
             else if (alert.severity === 'critical') iconUrl = `${base}/earthquake-red.png`;
         }
 
+        // === Create marker with pulse animation ===
         const el = document.createElement('div');
-        el.style.width = '60px';
-        el.style.height = '60px';
+        el.style.width = iconSize;
+        el.style.height = iconSize;
         el.style.backgroundImage = `url(${iconUrl})`;
         el.style.backgroundSize = 'contain';
         el.style.backgroundRepeat = 'no-repeat';
         el.style.backgroundPosition = 'center';
         el.style.cursor = 'pointer';
+        el.style.position = 'relative';
+        el.style.animation = 'markerPulse 2s ease-in-out 3';
+        
+        // Add pulse animation keyframes if not exists
+        if (!document.getElementById('marker-pulse-style')) {
+            const style = document.createElement('style');
+            style.id = 'marker-pulse-style';
+            style.textContent = `
+                @keyframes markerPulse {
+                    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+                    50% { transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.8)); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
 
         const imageUrl = alert.image_path 
             ? `{{ asset('storage') }}/${alert.image_path}` 
@@ -299,13 +325,18 @@
 
         const detailUrl = {{ $isAdmin ? '`/admin/alerts/${alert.id}`' : '`/alerts/${alert.id}`' }};
 
-        // === Create new marker ===
-        new maplibregl.Marker({ element: el })
+        // === Create new marker with enhanced popup ===
+        const marker = new maplibregl.Marker({ element: el })
             .setLngLat([lng, lat])
             .setPopup(
                 new maplibregl.Popup({ offset: 25, className: 'custom-popup' })
                     .setHTML(`
-                        <div style="max-width: 280px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                        <div style="max-width: 280px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border: 2px solid rgba(6, 182, 212, 0.5);">
+                            <!-- NEW Badge -->
+                            <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); color: white; padding: 4px 12px; border-radius: 12px; font-size: 10px; font-weight: 800; z-index: 10; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4); animation: badgePulse 1.5s ease-in-out infinite;">
+                                🆕 NEW ALERT
+                            </div>
+                            
                             <!-- Image -->
                             <div style="position: relative; width: 100%; height: 140px; overflow: hidden;">
                                 <img src="${imageUrl}" alt="Alert Image" style="width: 100%; height: 100%; object-fit: cover;">
@@ -343,67 +374,134 @@
                                 </a>
                             </div>
                         </div>
+                        <style>
+                            @keyframes badgePulse {
+                                0%, 100% { transform: translateX(-50%) scale(1); }
+                                50% { transform: translateX(-50%) scale(1.05); }
+                            }
+                        </style>
                     `)
             )
             .addTo(map);
 
-        // === Draw radius circle zone ===
+        // === Draw animated radius circle zone ===
         const radius = alert.radius ? parseFloat(alert.radius) : 500;
         const circle = turf.circle([lng, lat], radius / 1000, { steps: 64, units: 'kilometers' });
 
         const sourceId = `alert-circle-${alert.id}`;
         const layerId = `alert-circle-layer-${alert.id}`;
+        const pulseLayerId = `alert-circle-pulse-${alert.id}`;
 
         // If map already loaded, add zone immediately
         if (map.loaded()) {
             if (!map.getSource(sourceId)) {
                 map.addSource(sourceId, { type: 'geojson', data: circle });
+                
+                // Main fill layer with higher initial opacity
                 map.addLayer({
                     id: layerId,
                     type: 'fill',
                     source: sourceId,
                     paint: {
                         'fill-color': getColorBySeverity(alert.severity),
-                        'fill-opacity': 0.25
+                        'fill-opacity': 0.35
                     }
                 });
+
+                // Animated outline with pulsing effect
                 map.addLayer({
                     id: `${layerId}-outline`,
                     type: 'line',
                     source: sourceId,
                     paint: {
                         'line-color': getColorBySeverity(alert.severity),
-                        'line-width': 2,
-                        'line-opacity': 0.6
+                        'line-width': 3,
+                        'line-opacity': 1
                     }
                 });
+
+                // Animate the new alert zone
+                let pulseCount = 0;
+                const pulseInterval = setInterval(() => {
+                    pulseCount++;
+                    const progress = (pulseCount % 20) / 20;
+                    const opacity = 0.35 + (Math.sin(progress * Math.PI * 2) * 0.15);
+                    const lineWidth = 3 + (Math.sin(progress * Math.PI * 2) * 1);
+                    
+                    if (map.getLayer(layerId)) {
+                        map.setPaintProperty(layerId, 'fill-opacity', opacity);
+                        map.setPaintProperty(`${layerId}-outline`, 'line-width', lineWidth);
+                    }
+                    
+                    // Stop animation after 10 seconds
+                    if (pulseCount >= 200) {
+                        clearInterval(pulseInterval);
+                        // Fade to normal opacity
+                        if (map.getLayer(layerId)) {
+                            map.setPaintProperty(layerId, 'fill-opacity', 0.25);
+                            map.setPaintProperty(`${layerId}-outline`, 'line-width', 2);
+                        }
+                    }
+                }, 50);
             }
         } else {
             map.on('load', () => {
                 if (!map.getSource(sourceId)) {
                     map.addSource(sourceId, { type: 'geojson', data: circle });
+                    
                     map.addLayer({
                         id: layerId,
                         type: 'fill',
                         source: sourceId,
                         paint: {
                             'fill-color': getColorBySeverity(alert.severity),
-                            'fill-opacity': 0.25
+                            'fill-opacity': 0.35
                         }
                     });
+                    
                     map.addLayer({
                         id: `${layerId}-outline`,
                         type: 'line',
                         source: sourceId,
                         paint: {
                             'line-color': getColorBySeverity(alert.severity),
-                            'line-width': 2,
-                            'line-opacity': 0.6
+                            'line-width': 3,
+                            'line-opacity': 1
                         }
                     });
+
+                    // Animate
+                    let pulseCount = 0;
+                    const pulseInterval = setInterval(() => {
+                        pulseCount++;
+                        const progress = (pulseCount % 20) / 20;
+                        const opacity = 0.35 + (Math.sin(progress * Math.PI * 2) * 0.15);
+                        const lineWidth = 3 + (Math.sin(progress * Math.PI * 2) * 1);
+                        
+                        if (map.getLayer(layerId)) {
+                            map.setPaintProperty(layerId, 'fill-opacity', opacity);
+                            map.setPaintProperty(`${layerId}-outline`, 'line-width', lineWidth);
+                        }
+                        
+                        if (pulseCount >= 200) {
+                            clearInterval(pulseInterval);
+                            if (map.getLayer(layerId)) {
+                                map.setPaintProperty(layerId, 'fill-opacity', 0.25);
+                                map.setPaintProperty(`${layerId}-outline`, 'line-width', 2);
+                            }
+                        }
+                    }, 50);
                 }
             });
         }
+
+        // Pan map to new alert
+        map.flyTo({
+            center: [lng, lat],
+            zoom: Math.max(map.getZoom(), 12),
+            duration: 2000,
+            essential: true
+        });
     }
     window.addAlertToMap = addAlertToMap;
 </script>
