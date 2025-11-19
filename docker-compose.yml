@@ -28,6 +28,7 @@ services:
     depends_on:
       - mysql
       - node-server
+      - redis
     environment:
       DB_HOST: mysql
       DB_DATABASE: SafeZone
@@ -35,6 +36,33 @@ services:
       DB_PASSWORD: 123456
       APP_DEBUG: "true"
       APP_URL: http://localhost
+      QUEUE_CONNECTION: redis
+    networks:
+      - safezone-network
+    restart: unless-stopped
+
+  # Laravel Queue Worker (separate long-running process)
+  laravel-queue:
+    build:
+      context: ./SafeZone
+      dockerfile: Dockerfile
+    container_name: safezone-laravel-queue
+    # Faster queue processing to reduce notification delay
+    command: php artisan queue:work --sleep=0 --tries=3 --verbose --queue=default
+    volumes:
+      - ./SafeZone:/var/www:cached
+    depends_on:
+      - laravel
+      - redis
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_DATABASE: SafeZone
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+      APP_DEBUG: "true"
+      APP_URL: http://localhost
+      QUEUE_CONNECTION: redis
     networks:
       - safezone-network
     restart: unless-stopped
@@ -75,8 +103,27 @@ services:
       retries: 10
       interval: 10s
 
+  # Redis Cache / Queue
+  redis:
+    image: redis:7-alpine
+    container_name: safezone-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379" # expose if you need external access; remove for internal-only
+    volumes:
+      - redis_data:/data
+    networks:
+      - safezone-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   mysql_data:
+  redis_data:
 
 networks:
   safezone-network:

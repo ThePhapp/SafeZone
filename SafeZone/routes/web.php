@@ -6,9 +6,11 @@ use App\Http\Controllers\User\UserDashboard;
 use App\Http\Controllers\Admin\AdminDashboard;
 use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\Admin\AlertController;
 use App\Http\Controllers\User\AddressController;
 use App\Http\Controllers\User\AlertUserController;
+use App\Models\CustomDatabaseNotification;
 use App\Http\Controllers\User\EmergencyRouteController;
 use App\Http\Controllers\User\DisasterDataController;
 use App\Http\Controllers\Admin\UserController;
@@ -71,7 +73,6 @@ Route::middleware('auth')->group(function () {
         }
         return response()->json(['success' => true]);
     });
-    
 });
 
 Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
@@ -104,3 +105,28 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
 });
 
 require __DIR__.'/auth.php';
+
+// Health check endpoint (no auth) for deployment smoke tests
+Route::get('/health', function () {
+    $status = [
+        'app' => 'ok',
+        'time' => now()->toIso8601String(),
+    ];
+    // Database connectivity
+    try {
+        \DB::connection()->getPdo();
+        $status['database'] = 'ok';
+    } catch (\Throwable $e) {
+        $status['database'] = 'error';
+        $status['database_error'] = $e->getMessage();
+    }
+    // Redis connectivity via facade (works with predis or phpredis)
+    try {
+        $ping = Redis::connection()->client()->ping();
+        $status['redis'] = str_contains($ping, 'PONG') ? 'ok' : $ping;
+    } catch (\Throwable $e) {
+        $status['redis'] = 'error';
+        $status['redis_error'] = $e->getMessage();
+    }
+    return response()->json($status);
+});

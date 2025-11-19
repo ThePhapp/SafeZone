@@ -13,11 +13,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+         // Base demo user
+        // Create admin demo user only if not exists
+        $admin = User::where('email', 'admin@example.com')->first();
+        if (!$admin) {
+            $admin = User::factory()->create([
+                'name' => 'Admin Demo',
+                'email' => 'admin@example.com',
+                'role' => 'admin',
+            ]);
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Additional users
+        // Create additional users if total user count less than a threshold
+        if (User::count() < 6) {
+            User::factory(6 - User::count())->create();
+        }
+
+        // Call extended sample data seeder (alerts, addresses, etc.)
+        $this->call(SampleDataSeeder::class);
     }
 }

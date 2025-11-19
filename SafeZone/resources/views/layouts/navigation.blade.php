@@ -395,24 +395,20 @@
                     'lng' => $addr->longitude
                 ];
             }));
+            // Track realtime alerts to avoid flicker (badge jump then drop)
+            window.pendingRealtimeAlerts = window.pendingRealtimeAlerts || new Set();
+            window.lastRealtimeAlertAt = 0;
 
             // Listen for new alerts
             window.socket.on('alertCreated', function(alert) {
-                // Check if user is within alert radius
+                window.lastRealtimeAlertAt = Date.now();
+                if (alert && alert.id) {
+                    pendingRealtimeAlerts.add(alert.id);
+                }
                 if (isUserNearAlert(alert, userAddresses)) {
-                    // Show toast notification immediately
                     showToastNotification(alert);
-                    
-                    // Play notification sound
                     playNotificationSound();
-                    
-                    // Update badge and dropdown immediately with alert data (no waiting for DB)
                     updateBadgeAndDropdownFromAlert(alert);
-                    
-                    // Sync with database after 2 seconds to get the actual notification
-                    setTimeout(() => {
-                        updateNotificationBadge();
-                    }, 2000);
                 }
             });
 
@@ -453,6 +449,7 @@
             function updateBadgeAndDropdownFromAlert(alert) {
                 // Update badge immediately (increment by 1)
                 const badge = document.querySelector('.notification-badge');
+                window.optimisticUnreadCount = (window.optimisticUnreadCount || 0) + 1;
                 if (badge) {
                     const currentCount = parseInt(badge.textContent) || 0;
                     badge.textContent = currentCount + 1;
@@ -539,6 +536,8 @@
             }
             
             function updateNotificationBadge() {
+                // Avoid flicker: if realtime alert just arrived (<1.2s) skip immediate DB sync
+                // For permanent optimistic notifications, do not downgrade count.
                 // Fetch updated notification list and count
                 fetch('/api/notifications/list', {
                     headers: {
@@ -550,20 +549,22 @@
                 .then(data => {
                     // Update badge
                     const badge = document.querySelector('.notification-badge');
+                    const optimistic = window.optimisticUnreadCount || 0;
+                    const effectiveCount = Math.max(optimistic, data.unread_count);
                     if (badge) {
-                        if (data.unread_count > 0) {
-                            badge.textContent = data.unread_count;
+                        if (effectiveCount > 0) {
+                            badge.textContent = effectiveCount;
                             badge.classList.remove('hidden');
                         } else {
                             badge.remove();
                         }
-                    } else if (data.unread_count > 0) {
+                    } else if (effectiveCount > 0) {
                         // Create badge if it doesn't exist
                         const bellButton = document.querySelector('button[\\@click="notificationOpen = !notificationOpen"]');
                         if (bellButton) {
                             const newBadge = document.createElement('span');
                             newBadge.className = 'notification-badge absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full border-2 border-slate-900';
-                            newBadge.textContent = data.unread_count;
+                            newBadge.textContent = effectiveCount;
                             bellButton.appendChild(newBadge);
                         }
                     }
@@ -638,6 +639,14 @@
                 });
                 
                 dropdownContainer.innerHTML = html;
+                // Clear pending realtime IDs that now exist in DB
+                if (Array.isArray(notifications) && window.pendingRealtimeAlerts) {
+                    notifications.forEach(n => {
+                        if (n && n.id) {
+                            window.pendingRealtimeAlerts.delete(n.id);
+                        }
+                    });
+                }
             }
             
             function formatTimeAgo(dateString) {

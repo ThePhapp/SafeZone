@@ -107,8 +107,15 @@ public function index(Request $request)
         $address->longitude = $request->input('longitude');
         $alert->address()->save($address);
         $alert->refresh();
-        // Broadcast to realtime server
-        Http::post('http://localhost:6001/new-alert', $alert->load('address')->toArray());
+        // Broadcast to realtime server (use internal Docker DNS / env override)
+        $nodeBase = rtrim(env('NODE_SERVER_URL', 'http://node-server:6001'), '/');
+        try {
+            Http::timeout(3)->post($nodeBase.'/new-alert', $alert->load('address')->toArray());
+        } catch (\Throwable $e) {
+            Log::warning('Realtime alert broadcast failed: '.$e->getMessage(), [
+                'url' => $nodeBase.'/new-alert',
+            ]);
+        }
 
         // Notify all users within range (chunked for memory safety), including creator and admins
         try {
